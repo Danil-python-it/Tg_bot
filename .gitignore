@@ -1,0 +1,25 @@
+# Секреты
+.env
+
+# База данных
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Виртуальное окружение
+.venv/
+venv/
+env/
+
+# Логи
+*.log
+
+# IDE
+.vscode/
+.idea/
