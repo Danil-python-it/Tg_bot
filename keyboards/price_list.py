@@ -9,8 +9,3 @@ def get_price_menu() -> ReplyKeyboardMarkup:
     b.button(text="⬅️ Назад")
     b.adjust(2)
     return b.as_markup(resize_keyboard=True)
-
-def get_cancel_menu() -> ReplyKeyboardMarkup:
-    b = ReplyKeyboardBuilder()
-    b.button(text="❌ Отмена")
-    return b.as_markup(resize_keyboard=True)

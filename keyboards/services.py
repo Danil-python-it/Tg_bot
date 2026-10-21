@@ -1,17 +1,12 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import ReplyKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 from datetime import date
 
-def get_worker_menu() -> ReplyKeyboardMarkup:
-    builder = ReplyKeyboardBuilder()
-
-    builder.button(text="➕ Добавить задачу")
-    builder.button(text="📋 Показать выполненные задачи")
-
-    builder.adjust(1)
-
-    return builder.as_markup(resize_keyboard=True)
+def get_cancel_menu() -> ReplyKeyboardMarkup:
+    b = ReplyKeyboardBuilder()
+    b.button(text="❌ Отмена")
+    return b.as_markup(resize_keyboard=True)
 
 def get_current_data() -> ReplyKeyboardMarkup:
     

@@ -3,7 +3,7 @@ from aiogram.types import Message, CallbackQuery
 
 from DB.users import get_user, set_role, get_all_users
 
-from keyboards.admin import get_admin_menu
+from keyboards.main_menu import get_main_menu
 from keyboards.inline import get_users_list_kb, get_admin_user_card_kb
 
 from services.users_view import format_users_list, format_user_card
@@ -22,11 +22,11 @@ async def set_role_user(message: Message, user:dict):
     )
     return
 
-@router.message(F.text == "Список Пользователей")
+@router.message(F.text == "👥 Пользователи")
 async def get_all_user(message: Message, user:dict):
     users = await get_all_users()
     if not users:
-        await message.answer("Людей здесь нет", reply_markup=get_admin_menu())
+        await message.answer("Людей здесь нет", reply_markup=get_main_menu(user))
         return
     
     await message.answer(
@@ -74,15 +74,6 @@ async def back_to_list(call: CallbackQuery):
     await call.answer()
 
 @router.callback_query(F.data == "back:admin:menu")
-async def back_admin_menu(call: CallbackQuery):
+async def back_admin_menu(call: CallbackQuery, user:dict):
     await call.message.delete()
-    await call.answer(reply_markup=get_admin_menu())
-
-@router.message(F.text == "admin menu")
-async def get_a_menu(message: Message):
-    await message.answer(
-        f"menu:\n",
-        reply_markup=get_admin_menu()
-    )
-    return
- 
+    await call.answer(reply_markup=get_main_menu(user))

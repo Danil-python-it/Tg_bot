@@ -5,11 +5,10 @@ from aiogram.fsm.context import FSMContext
 
 from states.work import AddWork
 
-from keyboards.work_list import get_works_menu, get_cancel_menu
+from keyboards.work_list import get_works_menu
 from keyboards.inline import get_price_list_kb
-from keyboards.worker import get_current_data
+from keyboards.services import get_cancel_menu, get_current_data
 
-from DB.users import get_user
 from DB.price_list import get_price_list, get_price_position
 from DB.works import (
     add_work,

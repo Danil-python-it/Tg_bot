@@ -4,7 +4,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from states.price import AddPrice, EditPrice
-from keyboards.price_list import get_price_menu, get_cancel_menu
+from keyboards.price_list import get_price_menu
+from keyboards.services import get_cancel_menu
+
 from keyboards.inline import get_price_list_kb
 from DB.price_list import (
     add_price_position,

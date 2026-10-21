@@ -4,7 +4,7 @@ from aiogram.types import Message, CallbackQuery
 from services.users_view import format_users_list, format_user_card
 from services.works_view import format_works_list, format_works_dict
 
-from keyboards.employer import get_employer_menu
+from keyboards.main_menu import get_main_menu
 from keyboards.inline import get_users_list_kb, get_employer_user_card_kb
 
 from DB.users import get_all_users, get_user
@@ -17,11 +17,11 @@ router = Router()
 router.message.filter(RoleFilter("employer"))
 router.callback_query.filter(RoleFilter("employer"))
 
-@router.message(F.text == "лист рабочих")
-async def get_all_user(message: Message):
+@router.message(F.text == "👥 лист рабочих")
+async def get_all_user(message: Message, user:dict):
     users = await get_all_users()
     if not users:
-        await message.answer("Людей здесь нет", reply_markup=get_employer_menu())
+        await message.answer("Людей здесь нет", reply_markup=get_main_menu(user))
         return
 
     workers = [user for user in users if user["role"] == "worker"]
@@ -72,20 +72,20 @@ async def back_to_list(call: CallbackQuery):
     await call.answer()
 
 @router.callback_query(F.data == "back:emp:menu")
-async def back_to_menu(call: CallbackQuery):
+async def back_to_menu(call: CallbackQuery, user:dict):
     await call.message.delete()
-    await call.answer(reply_markup=get_employer_menu())
+    await call.answer(reply_markup=get_main_menu(user))
 
-@router.message(F.text == "Составить общий расчет")
-async def get_all_calculations(message: Message):
+@router.message(F.text == "💰 Общий расчёт")
+async def get_all_calculations(message: Message, user:dict):
     users = await get_all_users()
     if not users:
-        await message.answer("Людей здесь нет", reply_markup=get_employer_menu())
+        await message.answer("Людей здесь нет", reply_markup=get_main_menu(user))
         return
 
     workers = [user for user in users if user["role"] == "worker"]
     text = await format_works_dict(workers)
     await message.answer(
         text,
-        reply_markup=get_employer_menu(),
+        reply_markup=get_main_menu(user),
     )

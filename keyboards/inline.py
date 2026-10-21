@@ -14,10 +14,6 @@ def get_price_list_kb(positions: list[dict], action: str = "edit") -> InlineKeyb
     return b.as_markup()
 
 def get_users_list_kb(users: list[dict], prefix: str = "user") -> InlineKeyboardMarkup:
-    """
-    prefix: 'admin' → callback 'admin:5'
-            'emp'   → callback 'emp:5'
-    """
     b = InlineKeyboardBuilder()
     for u in users:
         b.button(
