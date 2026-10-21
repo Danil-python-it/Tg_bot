@@ -1,5 +1,4 @@
 # handlers/worker.py
-from aiogram import html
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
@@ -25,7 +24,11 @@ from DB.worker_data import (
 
 from services.works_view import format_works_list
 
+from filters.RoleFilter import RoleFilter
+
 router = Router()
+router.message.filter(RoleFilter("worker"))
+router.callback_query.filter(RoleFilter("worker"))
 
 CANCEL_TEXT = "❌ Отмена"
 
@@ -41,13 +44,7 @@ async def cancel_any(message: Message, state: FSMContext):
     await message.answer("Отменено.", reply_markup=get_works_menu())
 
 @router.message(F.text == "➕ Добавить задачу")
-async def add_user_work(message: Message, state: FSMContext):
-
-    user = await get_user(message.from_user.id)
-    if user["role"] != "worker":
-        await message.answer("Эта функция доступна только работникам.")
-        return
-    
+async def add_user_work(message: Message, state: FSMContext, user: dict):
     user_worker_data = await get_worker_data(user["id"])
     if (user_worker_data) is None:
         await add_worker_data_to_user(user["id"])
@@ -69,7 +66,6 @@ async def add_user_work(message: Message, state: FSMContext):
 async def work_choose_position(call: CallbackQuery, state: FSMContext):
     position_id = int(call.data.split(":")[1])
 
-    # Достаём позицию из прайса, чтобы знать title и price
     position = await get_price_position(position_id)
     if position is None:
         await call.answer("Позиция не найдена", show_alert=True)
@@ -83,7 +79,6 @@ async def work_choose_position(call: CallbackQuery, state: FSMContext):
     )
     await state.set_state(AddWork.waiting_count)
 
-    # Убираем inline-список, показываем reply-клавиатуру с отменой
     await call.message.edit_text(
         f"Выбрано: «{position['title']}»\n"
         f"Введите колличество выполненых единиц (число):"
@@ -137,13 +132,7 @@ async def work_date(message: Message, state: FSMContext):
     )
 
 @router.message(F.text == "📋 Показать выполненные задачи")
-async def show_works(message: Message):
-    user = await get_user(message.from_user.id)
-    
-    if user["role"] != "worker":
-        await message.answer("Эта функция доступна только работникам.")
-        return
-
+async def show_works(message: Message, user: dict):
     positions = await get_all_works(user["id"])
     salary = (await get_worker_data(user["id"]))["salary"]
     text = await format_works_list(positions,user["full_Name"],salary)

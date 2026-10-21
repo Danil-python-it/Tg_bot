@@ -10,6 +10,9 @@ from aiogram.enums import ParseMode
 from DB.database import init_db
 from handlers import common, price_list, worker, admin, employer
 
+from middlewares.user import UserMiddleware
+from middlewares.role import RoleMiddleware
+
 
 
 logging.basicConfig(level=logging.INFO)
@@ -20,12 +23,18 @@ dp.include_router(common.router)
 dp.include_router(price_list.router)
 dp.include_router(worker.router)
 dp.include_router(employer.router)
-
 dp.include_router(admin.router)
+
+dp.message.middleware(UserMiddleware())
+dp.message.middleware(RoleMiddleware())
+
+dp.callback_query.middleware(UserMiddleware())
+dp.callback_query.middleware(RoleMiddleware())
+
 
 async def main() -> None:
     await init_db()
-
+    
     bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     
     await bot.delete_webhook(drop_pending_updates=True)

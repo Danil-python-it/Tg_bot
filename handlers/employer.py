@@ -11,16 +11,14 @@ from DB.users import get_all_users, get_user
 from DB.works import get_all_works
 from DB.worker_data import get_worker_data
 
+from filters.RoleFilter import RoleFilter
+
 router = Router()
+router.message.filter(RoleFilter("employer"))
+router.callback_query.filter(RoleFilter("employer"))
 
 @router.message(F.text == "лист рабочих")
 async def get_all_user(message: Message):
-    user = await get_user(message.from_user.id)
-
-    if user["role"] != 'employer':
-        await message.answer("Эта функция недоступна")
-        return
-
     users = await get_all_users()
     if not users:
         await message.answer("Людей здесь нет", reply_markup=get_employer_menu())
@@ -35,12 +33,6 @@ async def get_all_user(message: Message):
 
 @router.callback_query(F.data.startswith("emp:"))
 async def open_user_card(call: CallbackQuery):
-    user_autor = await get_user(call.from_user.id)
-
-    if user_autor["role"] != 'employer':
-        await call.answer("Нет доступа", show_alert=True)
-        return
-
     user_id = int(call.data.split(":")[1])
     user = await get_user(user_id)
     if user is None:
@@ -55,11 +47,6 @@ async def open_user_card(call: CallbackQuery):
     
 @router.callback_query(F.data.startswith("works:"))
 async def get_user_works(call: CallbackQuery):
-    user_autor = await get_user(call.from_user.id)
-
-    if user_autor["role"] != 'employer':
-        await call.answer("Нет доступа", show_alert=True)
-        return
 
     user_id = int(call.data.split(":")[1])
     user = await get_user(user_id)
@@ -77,12 +64,6 @@ async def get_user_works(call: CallbackQuery):
 
 @router.callback_query(F.data == "back:emp:list")
 async def back_to_list(call: CallbackQuery):
-    user_autor = await get_user(call.from_user.id)
-    
-    if user_autor["role"] != 'employer':
-        await call.answer("Нет доступа", show_alert=True)
-        return
-
     users = await get_all_users()
     await call.message.edit_text(
         format_users_list(users),
@@ -92,23 +73,11 @@ async def back_to_list(call: CallbackQuery):
 
 @router.callback_query(F.data == "back:emp:menu")
 async def back_to_menu(call: CallbackQuery):
-    user_autor = await get_user(call.from_user.id)
-    
-    if user_autor["role"] != 'employer':
-        await call.answer("Нет доступа", show_alert=True)
-        return
-
     await call.message.delete()
     await call.answer(reply_markup=get_employer_menu())
 
 @router.message(F.text == "Составить общий расчет")
 async def get_all_calculations(message: Message):
-    user = await get_user(message.from_user.id)
-
-    if user["role"] != 'employer':
-        await message.answer("Эта функция недоступна")
-        return
-
     users = await get_all_users()
     if not users:
         await message.answer("Людей здесь нет", reply_markup=get_employer_menu())
