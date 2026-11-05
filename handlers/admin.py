@@ -3,8 +3,8 @@ from aiogram.types import Message, CallbackQuery
 
 from DB.users import get_user_to_telegram_id, set_role, get_all_users
 
-from keyboards.replay_menu import get_main_menu
-from keyboards.inline_menu import get_users_list_kb, get_admin_user_card_kb
+from keyboards.admin import get_admin_user_card_kb
+from keyboards.common import get_main_menu, get_users_list_kb 
 
 from services.users_view import format_users_list, format_user_card
 
@@ -34,7 +34,7 @@ async def get_all_user(message: Message, user:dict):
         reply_markup=get_users_list_kb(users,'admin'),
     )
 
-@router.callback_query(F.data.startswith("admin:"))
+@router.callback_query(F.data.regexp(r"^admin:\d+$"))
 async def open_user_card(call: CallbackQuery):
     telegram_user_id = int(call.data.split(":")[1])
     user = await get_user_to_telegram_id(telegram_user_id)
@@ -56,13 +56,12 @@ async def change_role(call: CallbackQuery):
     user = await get_user_to_telegram_id(telegram_user_id)
     await set_role(user["id"], new_role)
     
-    user = await get_user_to_telegram_id(telegram_user_id)
 
     await call.message.edit_text(
         f"👤 <b>{user['full_name']}</b>\n"
-        f"Роль: <b>{user['role']}</b>\n"
+        f"Роль: <b>{new_role}</b>\n"
         f"Telegram ID: <code>{user['telegram_id']}</code>",
-        reply_markup=get_admin_user_card_kb(telegram_user_id, user["role"]),
+        reply_markup=get_admin_user_card_kb(telegram_user_id, new_role),
     )
     await call.answer(f"Роль изменена на {new_role}")
 
@@ -74,11 +73,3 @@ async def back_to_list(call: CallbackQuery):
         reply_markup=get_users_list_kb(users,"admin"),
     )
     await call.answer()
-
-@router.callback_query(F.data == "back:admin:menu")
-async def back_admin_menu(call: CallbackQuery, user:dict):
-    await call.message.delete()
-    await call.answer(
-        "меню:",
-        reply_markup=get_main_menu(user)
-    )

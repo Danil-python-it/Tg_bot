@@ -1,11 +1,9 @@
-#common
-
 from aiogram import Router, F
 from aiogram.filters import CommandStart
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from DB.users import get_user_to_telegram_id, add_user
 
-from keyboards.replay_menu import get_main_menu
+from keyboards.common import get_main_menu
 
 router = Router()
 
@@ -30,3 +28,12 @@ async def get_menu(message: Message, user:dict):
 async def get_user_status(message: Message, user:dict):
     await message.answer("menu:\n", reply_markup=get_main_menu(user))
     return
+
+@router.callback_query(F.data == "common:back")
+async def back_to_menu(call: CallbackQuery, user:dict):
+    await call.message.delete()
+    await call.message.answer(
+        "меню:",
+        reply_markup=get_main_menu(user)
+        )
+    await call.answer()

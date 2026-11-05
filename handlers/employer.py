@@ -4,10 +4,10 @@ from aiogram.types import Message, CallbackQuery
 from services.users_view import format_users_list, format_user_card
 from services.works_view import format_works_list, format_works_dict
 
-from keyboards.replay_menu import get_main_menu
-from keyboards.inline_menu import get_users_list_kb, get_employer_user_card_kb
+from keyboards.common import get_main_menu, get_users_list_kb
+from keyboards.employer import get_employer_user_card_kb
 
-from DB.users import get_all_users, get_user_to_telegram_id
+from DB.users import get_all_users_with_role, get_user_to_telegram_id
 from DB.works import get_all_works
 
 from filters.RoleFilter import RoleFilter
@@ -18,12 +18,10 @@ router.callback_query.filter(RoleFilter("employer"))
 
 @router.message(F.text == "👥 лист рабочих")
 async def get_all_user(message: Message, user:dict):
-    users = await get_all_users()
-    if not users:
+    workers = await get_all_users_with_role("worker")
+    if not workers:
         await message.answer("Людей здесь нет", reply_markup=get_main_menu(user))
         return
-
-    workers = [user for user in users if user["role"] == "worker"]
     
     await message.answer(
         format_users_list(workers),
@@ -56,35 +54,26 @@ async def get_user_works(call: CallbackQuery):
     positions = await get_all_works(user["id"])
     text = await format_works_list(positions,user)
 
-    await call.message.answer(text)
     await call.message.delete()
+    await call.message.answer(text)
     await call.answer() 
 
 @router.callback_query(F.data == "back:emp:list")
 async def back_to_list(call: CallbackQuery):
-    users = await get_all_users()
+    users = await get_all_users_with_role("worker")
     await call.message.edit_text(
         format_users_list(users),
         reply_markup=get_users_list_kb(users,'emp'),
     )
     await call.answer()
 
-@router.callback_query(F.data == "back:emp:menu")
-async def back_to_menu(call: CallbackQuery, user:dict):
-    await call.message.delete()
-    await call.answer(
-        "меню:",
-        reply_markup=get_main_menu(user)
-        )
-
 @router.message(F.text == "💰 Общий расчёт")
 async def get_all_calculations(message: Message, user:dict):
-    users = await get_all_users()
-    if not users:
+    workers = await get_all_users_with_role("worker")
+    if not workers:
         await message.answer("Людей здесь нет", reply_markup=get_main_menu(user))
         return
 
-    workers = [user for user in users if user["role"] == "worker"]
     text = await format_works_dict(workers)
     await message.answer(
         text,

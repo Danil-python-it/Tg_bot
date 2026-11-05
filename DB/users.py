@@ -39,3 +39,9 @@ async def get_all_users() -> list[dict]:
     cur = await db.execute("SELECT * FROM users")
     row = await cur.fetchall()  
     return [dict(r) for r in row]
+
+async def get_all_users_with_role(role: str) -> list[dict]:
+    db = await get_db()
+    cur = await db.execute("SELECT * FROM users WHERE role=?",(role,))
+    row = await cur.fetchall()  
+    return [dict(r) for r in row]
