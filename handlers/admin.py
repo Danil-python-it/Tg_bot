@@ -76,4 +76,7 @@ async def back_to_list(call: CallbackQuery):
 @router.callback_query(F.data == "back:admin:menu")
 async def back_admin_menu(call: CallbackQuery, user:dict):
     await call.message.delete()
-    await call.answer(reply_markup=get_main_menu(user))
+    await call.answer(
+        "меню:",
+        reply_markup=get_main_menu(user)
+    )

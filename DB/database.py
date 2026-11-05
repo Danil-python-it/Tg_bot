@@ -43,21 +43,21 @@ async def init_db():
 
         await db.execute("""
             CREATE TABLE IF NOT EXISTS works (
-                id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                price_list_item_id INTEGER REFERENCES price_list(id),
-                count       INTEGER,
-                assignee_id INTEGER REFERENCES users(id),
-                work_date   TEXT NOT NULL,  
-                created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+                id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+                price_list_item_id  INTEGER REFERENCES price_list(id),
+                rate_snapshot       REAL, 
+                count               INTEGER,
+                assignee_id         INTEGER REFERENCES users(id),
+                work_date           TEXT NOT NULL,  
+                created_at          TEXT NOT NULL DEFAULT (datetime('now'))
             )
         """)
-        await db.execute("""
-            CREATE TABLE IF NOT EXISTS worker_data (
-                id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                salary      INTEGER,
-                assignee_id INTEGER REFERENCES users(id),
-                created_at  TEXT NOT NULL DEFAULT (datetime('now'))
-            )
-        """)
-
+        async with db.execute("PRAGMA table_info(works)") as cur:
+            cols = [r[1] for r in await cur.fetchall()]
+        if "rate_snapshot" not in cols:
+            await db.execute("ALTER TABLE works ADD COLUMN rate_snapshot REAL")
+            await db.execute("""UPDATE works SET rate_snapshot = (
+                SELECT price FROM price_list WHERE id = works.price_list_item_id
+            ) WHERE rate_snapshot IS NULL""")
+            
         await db.commit()

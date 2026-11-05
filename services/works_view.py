@@ -1,15 +1,17 @@
 from datetime import datetime
 from aiogram import html
 from DB.price_list import get_price_position
-from DB.worker_data import get_worker_data
 from DB.works import get_all_works
+from services.salary import get_user_calculation
 
 
-async def format_works_list(positions: list[dict], user_name:str, salary:str = 0) -> str:
+async def format_works_list(positions: list[dict], user:dict, options:dict = {"isSalary":True}) -> str:
+    user_name = user["full_Name"]
+    
     if not positions:
         return f"Лист работ у {user_name} пуст."
 
-    lines = [f"<b>Лист работ</b> ({len(positions)} пун.):\n\n<b>{user_name}</b>"] if salary != 0 else [f"\n<b><u>{user_name}</u></b>"]
+    lines = [f"<b>Лист работ</b> ({len(positions)} пун.):\n\n<b>{user_name}</b>"] if options["isSalary"] else [f"\n<b><u>{user_name}</u></b>"]
     last_date = ""
     index = 1
     for i, p in enumerate(positions, 1):
@@ -30,7 +32,9 @@ async def format_works_list(positions: list[dict], user_name:str, salary:str = 0
         )
         index += 1
 
-    text = (f"{"\n".join(lines)}\n\n──────────\nЗаработал - <b>{salary}p</b>") if salary != 0 else "\n".join(lines)
+    salary = await get_user_calculation(user["id"])
+
+    text = (f"{"\n".join(lines)}\n\n──────────\nЗаработал - <b>{salary}p</b>") if options["isSalary"]  else "\n".join(lines)
 
     return text
 
@@ -44,20 +48,20 @@ async def format_works_dict(users: list[dict]) -> str:
     for i, user in enumerate(users, 1):
 
         positions = await get_all_works(user["id"])
-        user_calc = await format_works_list(positions, user["full_Name"], 0)
+        user_calc = await format_works_list(positions, user, options={"isSalary":False})
+        user_salary = await get_user_calculation(user["id"])
 
-        worker_data = await get_worker_data(user["id"])
-        if worker_data is None:
+        if user_salary is None:
             salares_block.append(
                 f"{i}. {user['full_Name']} - список работ пуст"
             )
-            break 
+            continue 
 
-        all_salares += int(worker_data["salary"])
+        all_salares += int(user_salary)
 
         main_block.append(user_calc)
         salares_block.append(
-            f"{i}. <b>{user['full_Name']}</b> заработал: <b>{worker_data["salary"]}р.</b>"
+            f"{i}. <b>{user['full_Name']}</b> заработал: <b>{user_salary}р.</b>"
         )
 
     return "\n".join(main_block) +"\n──────────\n"+ '\n'.join(salares_block) + f'\n\nВся сумма - <b>{all_salares}р.</b>'

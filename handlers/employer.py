@@ -9,7 +9,6 @@ from keyboards.inline_menu import get_users_list_kb, get_employer_user_card_kb
 
 from DB.users import get_all_users, get_user
 from DB.works import get_all_works
-from DB.worker_data import get_worker_data
 
 from filters.RoleFilter import RoleFilter
 
@@ -55,8 +54,7 @@ async def get_user_works(call: CallbackQuery):
         return
     
     positions = await get_all_works(user["id"])
-    salary = (await get_worker_data(user["id"]))["salary"]
-    text = await format_works_list(positions,user["full_Name"],salary)
+    text = await format_works_list(positions,user)
 
     await call.message.answer(text)
     await call.message.delete()
@@ -74,7 +72,10 @@ async def back_to_list(call: CallbackQuery):
 @router.callback_query(F.data == "back:emp:menu")
 async def back_to_menu(call: CallbackQuery, user:dict):
     await call.message.delete()
-    await call.answer(reply_markup=get_main_menu(user))
+    await call.answer(
+        "меню:",
+        reply_markup=get_main_menu(user)
+        )
 
 @router.message(F.text == "💰 Общий расчёт")
 async def get_all_calculations(message: Message, user:dict):

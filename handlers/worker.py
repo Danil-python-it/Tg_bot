@@ -14,11 +14,6 @@ from DB.works import (
     add_work,
     get_all_works
 )
-from DB.worker_data import (
-    get_worker_data,
-    update_worker_salary,
-    add_worker_data_to_user
-)
 
 
 from services.works_view import format_works_list
@@ -44,18 +39,13 @@ async def cancel_any(message: Message, state: FSMContext):
 
 @router.message(F.text == "➕ Добавить задачу")
 async def add_user_work(message: Message, state: FSMContext, user: dict):
-    user_worker_data = await get_worker_data(user["id"])
-    if (user_worker_data) is None:
-        await add_worker_data_to_user(user["id"])
-        user_worker_data = await get_worker_data(user["id"])
-
     positions = await get_price_list()
     if not positions:
         await message.answer("Прайс пуст — обратитесь к работодателю.", reply_markup=get_works_menu())
         return
 
     await state.set_state(AddWork.waiting_position)
-    await state.update_data(user_id=user["id"], salary=user_worker_data["salary"])
+    await state.update_data(user_id=user["id"])
     await message.answer(
         "Выберите позицию:",
         reply_markup=get_price_list_kb(positions, action="GET")
@@ -115,11 +105,7 @@ async def work_date(message: Message, state: FSMContext):
         return 
 
     data = await state.get_data()
-    await add_work(data["position_id"], data["count"], data["user_id"], message.text.replace(".","-").strip())
-    await update_worker_salary(
-        data["user_id"],
-        (int(data["salary"])+(int(data["count"])*int(data["price"])))
-    )
+    await add_work(data["position_id"], data["price"], data["count"], data["user_id"], message.text.replace(".","-").strip())
 
     await state.clear()
     await message.answer(
@@ -133,8 +119,7 @@ async def work_date(message: Message, state: FSMContext):
 @router.message(F.text == "📋 Показать выполненные задачи")
 async def show_works(message: Message, user: dict):
     positions = await get_all_works(user["id"])
-    salary = (await get_worker_data(user["id"]))["salary"]
-    text = await format_works_list(positions,user["full_Name"],salary)
+    text = await format_works_list(positions,user)
 
     await message.answer(
         text,
