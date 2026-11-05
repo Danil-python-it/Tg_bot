@@ -53,7 +53,9 @@ async def change_role(call: CallbackQuery):
     _, _, user_id_str, new_role = call.data.split(":")
     telegram_user_id = int(user_id_str)
 
-    await set_role(telegram_user_id, new_role)
+    user = await get_user_to_telegram_id(telegram_user_id)
+    await set_role(user["id"], new_role)
+    
     user = await get_user_to_telegram_id(telegram_user_id)
 
     await call.message.edit_text(

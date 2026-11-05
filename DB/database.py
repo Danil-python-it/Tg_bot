@@ -59,6 +59,10 @@ async def init_db():
             await db.execute("""UPDATE works SET rate_snapshot = (
                 SELECT price FROM price_list WHERE id = works.price_list_item_id
             ) WHERE rate_snapshot IS NULL""")
+
+        async with db.execute("PRAGMA table_info(users)") as cur:
+            user_cols = [r[1] for r in await cur.fetchall()]
+        if "full_Name" in user_cols and "full_name" not in user_cols:
             await db.execute("ALTER TABLE users RENAME COLUMN full_Name TO full_name")
             
         await db.commit()

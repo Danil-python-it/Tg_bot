@@ -57,7 +57,7 @@ async def format_works_dict(users: list[dict]) -> str:
             )
             continue 
 
-        all_salares += int(user_salary)
+        all_salares += user_salary
 
         main_block.append(user_calc)
         salares_block.append(

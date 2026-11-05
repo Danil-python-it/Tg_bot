@@ -37,6 +37,5 @@ async def set_role(user_id: int, role: str) -> None:
 async def get_all_users() -> list[dict]:
     db = await get_db()
     cur = await db.execute("SELECT * FROM users")
-    row = await cur.fetchall()
-    await db.commit()   
+    row = await cur.fetchall()  
     return [dict(r) for r in row]
