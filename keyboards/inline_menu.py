@@ -2,15 +2,22 @@ from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
+def get_menu(user: dict) -> InlineKeyboardBuilder:
+    
+    b = InlineKeyboardBuilder()
+    b.adjust(1)
+    return b.as_markup(resize_keyboard=True)
+
+
 def get_price_list_kb(positions: list[dict], action: str = "edit") -> InlineKeyboardMarkup:
 
-    b = InlineKeyboardBuilder()
+    b = InlineKeyboardBuilder()  
     for pos in positions:
         b.button(
             text=f"{pos['title']} — {pos['price']:.0f} ₽",
             callback_data=f"{action}:{pos['id']}",
         )
-    b.adjust(1)  # по одной в ряд — длинные названия
+    b.adjust(1)  
     return b.as_markup()
 
 def get_users_list_kb(users: list[dict], prefix: str = "user") -> InlineKeyboardMarkup:
@@ -38,7 +45,6 @@ def get_admin_user_card_kb(user_id: int, current_role: str) -> InlineKeyboardMar
 def get_employer_user_card_kb(user_id: int) -> InlineKeyboardMarkup:
     b = InlineKeyboardBuilder()
     b.button(text="📋 Работы", callback_data=f"works:{user_id}")
-    # b.button(text="➕ Назначить задачу", callback_data=f"task:{user_id}")
     b.button(text="⬅️ К списку", callback_data="back:emp:list")
     b.adjust(1)
     return b.as_markup()

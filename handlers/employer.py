@@ -4,8 +4,8 @@ from aiogram.types import Message, CallbackQuery
 from services.users_view import format_users_list, format_user_card
 from services.works_view import format_works_list, format_works_dict
 
-from keyboards.main_menu import get_main_menu
-from keyboards.inline import get_users_list_kb, get_employer_user_card_kb
+from keyboards.replay_menu import get_main_menu
+from keyboards.inline_menu import get_users_list_kb, get_employer_user_card_kb
 
 from DB.users import get_all_users, get_user
 from DB.works import get_all_works

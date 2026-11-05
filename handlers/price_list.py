@@ -7,7 +7,7 @@ from states.price import AddPrice, EditPrice
 from keyboards.price_list import get_price_menu
 from keyboards.services import get_cancel_menu
 
-from keyboards.inline import get_price_list_kb
+from keyboards.inline_menu import get_price_list_kb
 from DB.price_list import (
     add_price_position,
     get_price_list,

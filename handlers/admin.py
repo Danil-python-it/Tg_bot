@@ -3,8 +3,8 @@ from aiogram.types import Message, CallbackQuery
 
 from DB.users import get_user, set_role, get_all_users
 
-from keyboards.main_menu import get_main_menu
-from keyboards.inline import get_users_list_kb, get_admin_user_card_kb
+from keyboards.replay_menu import get_main_menu
+from keyboards.inline_menu import get_users_list_kb, get_admin_user_card_kb
 
 from services.users_view import format_users_list, format_user_card
 
@@ -53,7 +53,7 @@ async def change_role(call: CallbackQuery):
     _, _, user_id_str, new_role = call.data.split(":")
     user_id = int(user_id_str)
 
-    await set_role(user_id, new_role)   # ← функция в DB/users.py
+    await set_role(user_id, new_role)
     user = await get_user(user_id)
 
     await call.message.edit_text(

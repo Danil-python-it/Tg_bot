@@ -5,7 +5,7 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message
 from DB.users import get_user, add_user
 
-from keyboards.main_menu import get_main_menu
+from keyboards.replay_menu import get_main_menu
 
 router = Router()
 
