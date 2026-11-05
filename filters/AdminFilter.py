@@ -8,6 +8,6 @@ class AdminFilter(BaseFilter):
         self.admin_id = SUPER_ADMIN_ID
 
     async def __call__(self, event: Message | CallbackQuery) -> bool:
-        from DB.users import get_user
-        user = await get_user(event.from_user.id)
+        from DB.users import get_user_to_telegram_id
+        user = await get_user_to_telegram_id(event.from_user.id)
         return user is not None and user["telegram_id"] == self.admin_id

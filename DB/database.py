@@ -26,7 +26,7 @@ async def init_db():
             CREATE TABLE IF NOT EXISTS users (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
                 telegram_id INTEGER UNIQUE NOT NULL,
-                full_Name   TEXT   DEFAULT 'unknown',
+                full_name   TEXT   DEFAULT 'unknown',
                 role        TEXT   DEFAULT 'worker',
                 created_at  TEXT DEFAULT (datetime('now'))
             )
@@ -59,5 +59,6 @@ async def init_db():
             await db.execute("""UPDATE works SET rate_snapshot = (
                 SELECT price FROM price_list WHERE id = works.price_list_item_id
             ) WHERE rate_snapshot IS NULL""")
+            await db.execute("ALTER TABLE users RENAME COLUMN full_Name TO full_name")
             
         await db.commit()

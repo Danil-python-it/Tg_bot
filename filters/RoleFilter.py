@@ -6,6 +6,6 @@ class RoleFilter(BaseFilter):
         self.role = role
 
     async def __call__(self, event: Message | CallbackQuery) -> bool:
-        from DB.users import get_user
-        user = await get_user(event.from_user.id)
+        from DB.users import get_user_to_telegram_id
+        user = await get_user_to_telegram_id(event.from_user.id)
         return user is not None and user["role"] == self.role

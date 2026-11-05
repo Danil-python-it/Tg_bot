@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 
-from DB.users import get_user, set_role, get_all_users
+from DB.users import get_user_to_telegram_id, set_role, get_all_users
 
 from keyboards.replay_menu import get_main_menu
 from keyboards.inline_menu import get_users_list_kb, get_admin_user_card_kb
@@ -16,7 +16,7 @@ router.callback_query.filter(AdminFilter())
 
 @router.message(F.text == "Сменить Роль")
 async def set_role_user(message: Message, user:dict):    
-    await set_role(user["telegram_id"], ("worker" if user["role"] == "employer" else "employer"))
+    await set_role(user["id"], ("worker" if user["role"] == "employer" else "employer"))
     await message.answer(
         f"Теперь ваша роль - {"worker" if user["role"] == "employer" else "employer"}"
     )
@@ -36,31 +36,31 @@ async def get_all_user(message: Message, user:dict):
 
 @router.callback_query(F.data.startswith("admin:"))
 async def open_user_card(call: CallbackQuery):
-    user_id = int(call.data.split(":")[1])
-    user = await get_user(user_id)
+    telegram_user_id = int(call.data.split(":")[1])
+    user = await get_user_to_telegram_id(telegram_user_id)
     if user is None:
         await call.answer("Пользователь не найден", show_alert=True)
         return
 
     await call.message.edit_text(
         format_user_card(user),
-        reply_markup=get_admin_user_card_kb(user_id, user["role"]),
+        reply_markup=get_admin_user_card_kb(telegram_user_id, user["role"]),
     )
     await call.answer() 
     
 @router.callback_query(F.data.startswith("role:set:"))
 async def change_role(call: CallbackQuery):
     _, _, user_id_str, new_role = call.data.split(":")
-    user_id = int(user_id_str)
+    telegram_user_id = int(user_id_str)
 
-    await set_role(user_id, new_role)
-    user = await get_user(user_id)
+    await set_role(telegram_user_id, new_role)
+    user = await get_user_to_telegram_id(telegram_user_id)
 
     await call.message.edit_text(
-        f"👤 <b>{user['full_Name']}</b>\n"
+        f"👤 <b>{user['full_name']}</b>\n"
         f"Роль: <b>{user['role']}</b>\n"
         f"Telegram ID: <code>{user['telegram_id']}</code>",
-        reply_markup=get_admin_user_card_kb(user_id, user["role"]),
+        reply_markup=get_admin_user_card_kb(telegram_user_id, user["role"]),
     )
     await call.answer(f"Роль изменена на {new_role}")
 

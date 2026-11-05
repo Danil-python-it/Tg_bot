@@ -9,7 +9,7 @@ def format_users_list(users: list[dict], title: str = "Пользователи"
 def format_user_card(user: dict) -> str:
     """Текст карточки. Одинаков для админа и работодателя."""
     return (
-        f"👤 <b>{html.quote(user['full_Name'])}</b>\n"
+        f"👤 <b>{html.quote(user['full_name'])}</b>\n"
         f"Роль: <b>{user['role']}</b>\n"
         f"Telegram ID: <code>{user['telegram_id']}</code>"
     )

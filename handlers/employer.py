@@ -7,7 +7,7 @@ from services.works_view import format_works_list, format_works_dict
 from keyboards.replay_menu import get_main_menu
 from keyboards.inline_menu import get_users_list_kb, get_employer_user_card_kb
 
-from DB.users import get_all_users, get_user
+from DB.users import get_all_users, get_user_to_telegram_id
 from DB.works import get_all_works
 
 from filters.RoleFilter import RoleFilter
@@ -32,23 +32,23 @@ async def get_all_user(message: Message, user:dict):
 
 @router.callback_query(F.data.startswith("emp:"))
 async def open_user_card(call: CallbackQuery):
-    user_id = int(call.data.split(":")[1])
-    user = await get_user(user_id)
+    user_telegram_id = int(call.data.split(":")[1])
+    user = await get_user_to_telegram_id(user_telegram_id)
     if user is None:
         await call.answer("Пользователь не найден", show_alert=True)
         return
 
     await call.message.edit_text(
         format_user_card(user),
-        reply_markup=get_employer_user_card_kb(user_id),
+        reply_markup=get_employer_user_card_kb(user_telegram_id),
     )
     await call.answer() 
     
 @router.callback_query(F.data.startswith("works:"))
 async def get_user_works(call: CallbackQuery):
 
-    user_id = int(call.data.split(":")[1])
-    user = await get_user(user_id)
+    user_telegram_id = int(call.data.split(":")[1])
+    user = await get_user_to_telegram_id(user_telegram_id)
     if user is None:
         await call.answer("Пользователь не найден", show_alert=True)
         return

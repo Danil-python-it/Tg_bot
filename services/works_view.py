@@ -6,7 +6,7 @@ from services.salary import get_user_calculation
 
 
 async def format_works_list(positions: list[dict], user:dict, options:dict = {"isSalary":True}) -> str:
-    user_name = user["full_Name"]
+    user_name = user["full_name"]
     
     if not positions:
         return f"Лист работ у {user_name} пуст."
@@ -53,7 +53,7 @@ async def format_works_dict(users: list[dict]) -> str:
 
         if user_salary is None:
             salares_block.append(
-                f"{i}. {user['full_Name']} - список работ пуст"
+                f"{i}. {user['full_name']} - список работ пуст"
             )
             continue 
 
@@ -61,7 +61,7 @@ async def format_works_dict(users: list[dict]) -> str:
 
         main_block.append(user_calc)
         salares_block.append(
-            f"{i}. <b>{user['full_Name']}</b> заработал: <b>{user_salary}р.</b>"
+            f"{i}. <b>{user['full_name']}</b> заработал: <b>{user_salary}р.</b>"
         )
 
     return "\n".join(main_block) +"\n──────────\n"+ '\n'.join(salares_block) + f'\n\nВся сумма - <b>{all_salares}р.</b>'
