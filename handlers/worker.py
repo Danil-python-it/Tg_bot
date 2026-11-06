@@ -1,5 +1,5 @@
 # handlers/worker.py
-from aiogram import Router, F
+from aiogram import Router, F, flags
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
@@ -18,11 +18,7 @@ from DB.works import (
 
 from services.works_view import format_works_list
 
-from filters.RoleFilter import RoleFilter
-
 router = Router()
-router.message.filter(RoleFilter("worker"))
-router.callback_query.filter(RoleFilter("worker"))
 
 CANCEL_TEXT = "❌ Отмена"
 
@@ -38,6 +34,7 @@ async def cancel_any(message: Message, state: FSMContext):
     await message.answer("Отменено.", reply_markup=get_works_menu())
 
 @router.message(F.text == "➕ Добавить задачу")
+@flags.permission("create_work")
 async def add_user_work(message: Message, state: FSMContext, user: dict):
     positions = await get_price_list()
     if not positions:
@@ -52,6 +49,7 @@ async def add_user_work(message: Message, state: FSMContext, user: dict):
     )
 
 @router.callback_query(AddWork.waiting_position, F.data.startswith("GET:"))
+@flags.permission("create_work")
 async def work_choose_position(call: CallbackQuery, state: FSMContext):
     position_id = int(call.data.split(":")[1])
 
@@ -76,6 +74,7 @@ async def work_choose_position(call: CallbackQuery, state: FSMContext):
     await call.answer()
 
 @router.message(AddWork.waiting_count)
+@flags.permission("create_work")
 async def work_count(message: Message, state: FSMContext):
     try:
         count = int(message.text.replace(",", ".").strip())
@@ -96,6 +95,7 @@ async def work_count(message: Message, state: FSMContext):
     )    
 
 @router.message(AddWork.waiting_date)
+@flags.permission("create_work")
 async def work_date(message: Message, state: FSMContext):
     from datetime import datetime
     try:
@@ -116,7 +116,8 @@ async def work_date(message: Message, state: FSMContext):
         reply_markup=get_works_menu(),
     )
 
-@router.message(F.text == "📋 Показать выполненные задачи")
+@router.message(F.text == "💰 Мои начисления")
+@flags.permission("view_works")
 async def show_works(message: Message, user: dict):
     positions = await get_all_works(user["id"])
     text = await format_works_list(positions,user)

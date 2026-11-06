@@ -1,27 +1,24 @@
 from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 from config import SUPER_ADMIN_ID
+from services.roles import has_permission
 
 
 COMMON_BUTTONS = [
     ("⚙️ Настройки профиля"),
 ]
 
-ROLE_BUTTONS = {
-    "employer": [
-        ("📋 Показать прайс"),
-        ("👥 лист рабочих"),
-        ("💰 Общий расчёт"),
-    ],
-    "worker": [
-        ("➕ Добавить задачу"),
-        ("📋 Показать выполненные задачи"),
-    ],
+PERMISSION_BUTTONS = {
+    "create_work":      ["➕ Добавить задачу"],
+    "view_works":       ["💰 Мои начисления"],
+    "view_price":       ["📋 Показать прайс"],
+    "view_payouts":     ["💰 Общий расчёт"],
+    "view_workers":     ["👥 лист сотрудников"],
+    "manage_users":     ["👥 лист Пользователи"],
 }
 
 ADMINS_BUTTONS = [
-    ("👥 Пользователи"),
-    ("Сменить Роль"),
+    ("👥 лист Пользователи"),
 ]
 
 
@@ -32,8 +29,10 @@ def get_main_menu(user: dict) -> ReplyKeyboardMarkup:
     for _text in COMMON_BUTTONS:
         b.button(text=_text)
 
-    for _text in ROLE_BUTTONS.get(user["role"], []):
-        b.button(text=_text)
+    for perm, container in PERMISSION_BUTTONS.items():
+        if has_permission(user["role"], perm):
+            for content in container:
+                b.button(text=content)
 
     if user["telegram_id"] == SUPER_ADMIN_ID:
         for _text in ADMINS_BUTTONS:

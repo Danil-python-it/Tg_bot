@@ -1,5 +1,5 @@
 # handlers/price.py
-from aiogram import Router, F
+from aiogram import Router, F, flags
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
@@ -34,6 +34,7 @@ async def cancel_any(message: Message, state: FSMContext):
 # ---------- Добавление ----------
 
 @router.message(F.text == "➕ Добавить позицию")
+@flags.permission("create_price")
 async def start_add(message: Message, state: FSMContext):
     await state.set_state(AddPrice.waiting_title)
     await message.answer(
@@ -43,6 +44,7 @@ async def start_add(message: Message, state: FSMContext):
 
 
 @router.message(AddPrice.waiting_title)
+@flags.permission("create_price")
 async def add_title(message: Message, state: FSMContext):
     title = message.text.strip()
     if not title:
@@ -54,6 +56,7 @@ async def add_title(message: Message, state: FSMContext):
 
 
 @router.message(AddPrice.waiting_price)
+@flags.permission("create_price")
 async def add_price(message: Message, state: FSMContext):
     try:
         price = float(message.text.replace(",", ".").strip())
@@ -85,6 +88,7 @@ async def add_price(message: Message, state: FSMContext):
 # ---------- Список позиций ----------
 
 @router.message(F.text == "📋 Показать прайс")
+@flags.permission("view_price")
 async def show_price(message: Message):
     positions = await get_price_list()
     if not positions:
@@ -100,6 +104,7 @@ async def show_price(message: Message):
 # ---------- Редактирование: выбор позиции ----------
 
 @router.message(F.text == "✏️ Изменить цену")
+@flags.permission("edit_price")
 async def start_edit(message: Message, state: FSMContext):
     positions = await get_price_list()
     if not positions:
@@ -114,6 +119,7 @@ async def start_edit(message: Message, state: FSMContext):
 
 
 @router.callback_query(EditPrice.waiting_choice, F.data.startswith("edit:"))
+@flags.permission("edit_price")
 async def edit_choose(call: CallbackQuery, state: FSMContext):
     position_id = int(call.data.split(":")[1])
     position = await get_price_position(position_id)
@@ -134,6 +140,7 @@ async def edit_choose(call: CallbackQuery, state: FSMContext):
 
 
 @router.message(EditPrice.waiting_new_price)
+@flags.permission("edit_price")
 async def edit_new_price(message: Message, state: FSMContext):
     try:
         new_price = float(message.text.replace(",", ".").strip())

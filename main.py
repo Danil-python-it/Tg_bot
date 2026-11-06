@@ -12,6 +12,7 @@ from handlers import common, price_list, worker, admin, employer
 
 from middlewares.user import UserMiddleware
 from middlewares.role import RoleMiddleware
+from middlewares.permission import PermissionMiddleware
 
 
 
@@ -30,6 +31,7 @@ dp.message.middleware(RoleMiddleware())
 
 dp.callback_query.middleware(UserMiddleware())
 dp.callback_query.middleware(RoleMiddleware())
+dp.callback_query.middleware(PermissionMiddleware())
 
 
 async def main() -> None:

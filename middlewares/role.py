@@ -3,6 +3,7 @@ from aiogram import BaseMiddleware
 from aiogram.dispatcher.flags import get_flag
 from aiogram.types import TelegramObject
 
+
 class RoleMiddleware(BaseMiddleware):
     async def __call__(
         self,

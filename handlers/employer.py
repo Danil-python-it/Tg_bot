@@ -1,4 +1,4 @@
-from aiogram import Router, F
+from aiogram import Router, F, flags
 from aiogram.types import Message, CallbackQuery
 
 from services.users_view import format_users_list, format_user_card
@@ -10,13 +10,10 @@ from keyboards.employer import get_employer_user_card_kb
 from DB.users import get_all_users_with_role, get_user_to_telegram_id
 from DB.works import get_all_works
 
-from filters.RoleFilter import RoleFilter
-
 router = Router()
-router.message.filter(RoleFilter("employer"))
-router.callback_query.filter(RoleFilter("employer"))
 
 @router.message(F.text == "👥 лист рабочих")
+@flags.permission("view_workers")
 async def get_all_user(message: Message, user:dict):
     workers = await get_all_users_with_role("worker")
     if not workers:
@@ -29,6 +26,7 @@ async def get_all_user(message: Message, user:dict):
     )
 
 @router.callback_query(F.data.startswith("emp:"))
+
 async def open_user_card(call: CallbackQuery):
     user_telegram_id = int(call.data.split(":")[1])
     user = await get_user_to_telegram_id(user_telegram_id)
@@ -43,6 +41,7 @@ async def open_user_card(call: CallbackQuery):
     await call.answer() 
     
 @router.callback_query(F.data.startswith("works:"))
+
 async def get_user_works(call: CallbackQuery):
 
     user_telegram_id = int(call.data.split(":")[1])
@@ -68,6 +67,7 @@ async def back_to_list(call: CallbackQuery):
     await call.answer()
 
 @router.message(F.text == "💰 Общий расчёт")
+@flags.permission("view_payouts")
 async def get_all_calculations(message: Message, user:dict):
     workers = await get_all_users_with_role("worker")
     if not workers:
