@@ -1,5 +1,13 @@
 from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardMarkup
-from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+from keyboards._helpers import build_menu
+
+buttons = {
+    "permission_button":{
+        "create_price":      ["➕ Добавить позицию","📋 Показать прайс"],
+        "edit_price":        ["✏️ Изменить цену"],
+    }
+}
 
 def get_price_list_kb(positions: list[dict], action: str = "edit") -> InlineKeyboardMarkup:
 
@@ -12,11 +20,5 @@ def get_price_list_kb(positions: list[dict], action: str = "edit") -> InlineKeyb
     b.adjust(1)  
     return b.as_markup()
 
-def get_price_menu() -> ReplyKeyboardMarkup:
-    b = ReplyKeyboardBuilder()
-    b.button(text="➕ Добавить позицию")
-    b.button(text="📋 Показать прайс")
-    b.button(text="✏️ Изменить цену")
-    b.button(text="⬅️ Назад")
-    b.adjust(2)
-    return b.as_markup(resize_keyboard=True)
+def get_price_menu(user: dict) -> ReplyKeyboardMarkup:
+    return build_menu(user, buttons, 2)

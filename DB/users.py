@@ -18,6 +18,7 @@ async def get_user_to_telegram_id(telegram_id: int) -> str | None:
         row = await cursor.fetchone()
         return dict(row) if row else None
 
+
 async def add_user(telegram_id: int, full_name: str, role: str = "worker") -> int:
     db = await get_db()
     cur = await db.execute(

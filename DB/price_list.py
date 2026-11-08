@@ -35,7 +35,6 @@ async def update_price(position_id: int, new_price: float) -> None:
     )
     await db.commit()
 
-
 async def update_title(position_id: int, new_title: str) -> None:
     db = await get_db()
     await db.execute(
@@ -43,7 +42,6 @@ async def update_title(position_id: int, new_title: str) -> None:
         (new_title, position_id),
     )
     await db.commit()
-
 
 async def delete_price(position_id: int) -> None:
     db = await get_db()

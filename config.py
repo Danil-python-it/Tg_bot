@@ -12,7 +12,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 SUPER_ADMIN_ID = int(os.getenv("SUPER_ADMIN_ID", "0"))
 DB_PATH = Path(os.getenv("DB_PATH", "work_bot.db"))
 
-CREATE_WORK = "create_work"
+CREATE_WORKS = "create_work"
 VIEW_WORKS = "view_works"
 
 EDIT_PRICE = "edit_price"
@@ -24,6 +24,8 @@ VIEW_PAYOUTS = "view_payouts"
 VIEW_WORKERS = "view_workers"
 
 MANAGE_USERS = "manage_users"
+VIEW_USERS   = "view_users"
+
 
 # Валидация — падаем сразу, а не в момент первого запроса
 if not BOT_TOKEN:

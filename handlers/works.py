@@ -7,16 +7,10 @@ from states.work import AddWork
 
 from keyboards.price import get_price_list_kb
 from keyboards.fsm import get_cancel_menu, get_current_data
-from keyboards.worker import get_works_menu
+from keyboards.works import get_works_menu
 
 from DB.price_list import get_price_list, get_price_position
-from DB.works import (
-    add_work,
-    get_all_works
-)
-
-
-from services.works_view import format_works_list
+from DB.works import add_work
 
 router = Router()
 
@@ -25,20 +19,20 @@ CANCEL_TEXT = "❌ Отмена"
 # ---------- Отмена (работает в любом состоянии) ----------
 
 @router.message(F.text == CANCEL_TEXT)
-async def cancel_any(message: Message, state: FSMContext):
+async def cancel_any(message: Message, state: FSMContext, user: dict):
     current = await state.get_state()
     if current is None:
-        await message.answer("Нечего отменять.", reply_markup=get_works_menu())
+        await message.answer("Нечего отменять.", reply_markup=get_works_menu(user))
         return
     await state.clear()
-    await message.answer("Отменено.", reply_markup=get_works_menu())
+    await message.answer("Отменено.", reply_markup=get_works_menu(user))
 
 @router.message(F.text == "➕ Добавить задачу")
 @flags.permission("create_work")
 async def add_user_work(message: Message, state: FSMContext, user: dict):
     positions = await get_price_list()
     if not positions:
-        await message.answer("Прайс пуст — обратитесь к работодателю.", reply_markup=get_works_menu())
+        await message.answer("Прайс пуст — обратитесь к работодателю.", reply_markup=get_works_menu(user))
         return
 
     await state.set_state(AddWork.waiting_position)
@@ -96,7 +90,7 @@ async def work_count(message: Message, state: FSMContext):
 
 @router.message(AddWork.waiting_date)
 @flags.permission("create_work")
-async def work_date(message: Message, state: FSMContext):
+async def work_date(message: Message, state: FSMContext, user:dict):
     from datetime import datetime
     try:
         datetime.strptime(message.text.replace(".","-").strip(), "%Y-%m-%d")
@@ -113,19 +107,5 @@ async def work_date(message: Message, state: FSMContext):
         f"Колличество: {data["count"]}\n"
         f"Введите дату выполнения {message.text.strip()}\n\n"
         "Задача сохранена",
-        reply_markup=get_works_menu(),
+        reply_markup=get_works_menu(user),
     )
-
-@router.message(F.text == "💰 Мои начисления")
-@flags.permission("view_works")
-async def show_works(message: Message, user: dict):
-    positions = await get_all_works(user["id"])
-    text = await format_works_list(positions,user)
-
-    await message.answer(
-        text,
-        reply_markup=get_works_menu()
-    )
-    
-
-

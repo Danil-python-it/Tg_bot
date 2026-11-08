@@ -2,7 +2,7 @@ from datetime import datetime
 from aiogram import html
 from DB.price_list import get_price_position
 from DB.works import get_all_works
-from services.salary import get_user_calculation
+from services.payouts import get_user_calculation
 
 
 async def format_works_list(positions: list[dict], user:dict, options:dict = {"isSalary":True}) -> str:

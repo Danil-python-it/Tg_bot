@@ -14,19 +14,14 @@ async def start_handler(message: Message):
 
     # 1. Если пользователя нет — создаём
     if user is None:
-        await add_user(tg_id, message.from_user.full_name, role="worker")
+        await add_user(tg_id, message.from_user.full_name, role="unknown")
         user = await get_user_to_telegram_id(tg_id)
         
     await message.answer("Привет! Меню:", reply_markup=get_main_menu(user))
 
-@router.message(F.text == "/menu")
+@router.message(F.text.in_({"/menu","⬅️ Назад"}))
 async def get_menu(message: Message, user:dict):
-    await message.answer("menu:\n", reply_markup=get_main_menu(user))
-    return
-
-@router.message(F.text == "⬅️ Назад")
-async def get_user_status(message: Message, user:dict):
-    await message.answer("menu:\n", reply_markup=get_main_menu(user))
+    await message.answer("меню:\n", reply_markup=get_main_menu(user))
     return
 
 @router.callback_query(F.data == "common:back")

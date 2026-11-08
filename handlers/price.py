@@ -22,13 +22,13 @@ CANCEL_TEXT = "❌ Отмена"
 # ---------- Отмена (работает в любом состоянии) ----------
 
 @router.message(F.text == CANCEL_TEXT)
-async def cancel_any(message: Message, state: FSMContext):
+async def cancel_any(message: Message, state: FSMContext, user:dict):
     current = await state.get_state()
     if current is None:
-        await message.answer("Нечего отменять.", reply_markup=get_price_menu())
+        await message.answer("Нечего отменять.", reply_markup=get_price_menu(user))
         return
     await state.clear()
-    await message.answer("Отменено.", reply_markup=get_price_menu())
+    await message.answer("Отменено.", reply_markup=get_price_menu(user))
 
 
 # ---------- Добавление ----------
@@ -57,7 +57,7 @@ async def add_title(message: Message, state: FSMContext):
 
 @router.message(AddPrice.waiting_price)
 @flags.permission("create_price")
-async def add_price(message: Message, state: FSMContext):
+async def add_price(message: Message, state: FSMContext, user:dict):
     try:
         price = float(message.text.replace(",", ".").strip())
         if price < 0:
@@ -73,7 +73,7 @@ async def add_price(message: Message, state: FSMContext):
         # Скорее всего, UNIQUE-конфликт по title
         await message.answer(
             f"Позиция «{data['title']}» уже есть в прайсе.",
-            reply_markup=get_price_menu(),
+            reply_markup=get_price_menu(user),
         )
         await state.clear()
         return
@@ -81,7 +81,7 @@ async def add_price(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
         f"Добавлено: «{data['title']}» — {price:.0f} ₽",
-        reply_markup=get_price_menu(),
+        reply_markup=get_price_menu(user),
     )
 
 
@@ -89,26 +89,26 @@ async def add_price(message: Message, state: FSMContext):
 
 @router.message(F.text == "📋 Показать прайс")
 @flags.permission("view_price")
-async def show_price(message: Message):
+async def show_price(message: Message, user:dict):
     positions = await get_price_list()
     if not positions:
-        await message.answer("Прайс пуст.", reply_markup=get_price_menu())
+        await message.answer("Прайс пуст.", reply_markup=get_price_menu(user))
         return
 
     lines = [f"<b>Прайс-лист</b> ({len(positions)} поз.):\n"]
     for i, p in enumerate(positions, 1):
         lines.append(f"{i}. {p['title']} — <b>{p['price']:.0f} ₽</b>")
-    await message.answer("\n".join(lines), reply_markup=get_price_menu())
+    await message.answer("\n".join(lines), reply_markup=get_price_menu(user))
 
 
 # ---------- Редактирование: выбор позиции ----------
 
 @router.message(F.text == "✏️ Изменить цену")
 @flags.permission("edit_price")
-async def start_edit(message: Message, state: FSMContext):
+async def start_edit(message: Message, state: FSMContext, user:dict):
     positions = await get_price_list()
     if not positions:
-        await message.answer("Прайс пуст — нечего менять.", reply_markup=get_price_menu())
+        await message.answer("Прайс пуст — нечего менять.", reply_markup=get_price_menu(user))
         return
 
     await state.set_state(EditPrice.waiting_choice)
@@ -141,7 +141,7 @@ async def edit_choose(call: CallbackQuery, state: FSMContext):
 
 @router.message(EditPrice.waiting_new_price)
 @flags.permission("edit_price")
-async def edit_new_price(message: Message, state: FSMContext):
+async def edit_new_price(message: Message, state: FSMContext, user:dict):
     try:
         new_price = float(message.text.replace(",", ".").strip())
         if new_price < 0:
@@ -155,5 +155,5 @@ async def edit_new_price(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
         f"Обновлено: «{data['title']}» — {new_price:.0f} ₽",
-        reply_markup=get_price_menu(),
+        reply_markup=get_price_menu(user),
     )

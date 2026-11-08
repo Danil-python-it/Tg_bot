@@ -6,7 +6,7 @@ ROLES = {
         "label": "Работник",
         "emoji": "🔧", 
         "permissions": {
-            VIEW_WORKS, CREATE_WORK, VIEW_PRICE
+            VIEW_WORKS, CREATE_WORKS, VIEW_PRICE
         }
     },
     "employer":   
@@ -14,7 +14,7 @@ ROLES = {
         "label": "Работодатель", 
         "emoji": "💼", 
         "permissions": {
-            VIEW_WORKS, EDIT_PRICE, VIEW_PRICE, CREATE_PRICE, VIEW_PAYOUTS
+            VIEW_WORKS, EDIT_PRICE, VIEW_PRICE, CREATE_PRICE, VIEW_PAYOUTS, VIEW_WORKERS
         }
     },
     "accountant": 
@@ -25,14 +25,30 @@ ROLES = {
             VIEW_WORKS, VIEW_PAYOUTS, CREATE_PRICE, EDIT_PRICE
         }
     },
+    "unknowт":      
+        {
+            "label": "Неизвестный",        
+            "emoji": "👑", 
+            "permissions": {
+                VIEW_PRICE
+            }
+        },
     "admin":      
     {
         "label": "Админ",        
         "emoji": "👑", 
         "permissions": {
-            MANAGE_USERS
+            MANAGE_USERS, VIEW_USERS
         }
     },
+    "developer": 
+    {
+        "label": "Админ",        
+        "emoji": "👑", 
+        "permissions": {
+            MANAGE_USERS, VIEW_USERS
+        }
+    }     
 }
 
 def has_permission(role: str, permission: str) -> bool:

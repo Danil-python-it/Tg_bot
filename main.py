@@ -8,7 +8,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from DB.database import init_db
-from handlers import common, price_list, worker, admin, employer
+from handlers import common, price, payouts, works, users
 
 from middlewares.user import UserMiddleware
 from middlewares.role import RoleMiddleware
@@ -21,10 +21,11 @@ logging.basicConfig(level=logging.INFO)
 dp = Dispatcher()
 
 dp.include_router(common.router) 
-dp.include_router(price_list.router)
-dp.include_router(worker.router)
-dp.include_router(employer.router)
-dp.include_router(admin.router)
+dp.include_router(price.router)
+dp.include_router(works.router)
+dp.include_router(payouts.router)
+dp.include_router(users.router)
+
 
 dp.message.middleware(UserMiddleware())
 dp.message.middleware(RoleMiddleware())

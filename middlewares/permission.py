@@ -2,7 +2,8 @@ from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware
 from aiogram.dispatcher.flags import get_flag
 from aiogram.types import TelegramObject
-from services.roles import has_permission
+from config import SUPER_ADMIN_ID
+from roles import has_permission
 
 class PermissionMiddleware(BaseMiddleware):
     async def __call__(
@@ -12,9 +13,13 @@ class PermissionMiddleware(BaseMiddleware):
         data: Dict[str, Any],
     ) -> Any:
         required = get_flag(data, "permission")
+
         if required is None:
             return await handler(event, data)          # хендлер без флага — публичный
-
+        
+        if data.get("user", {}).get("telegram_id") == SUPER_ADMIN_ID:
+            return await handler(event, data)
+        
         user = data.get("user")
         if not user or not has_permission(user["role"], required):
             if hasattr(event, "answer"):
