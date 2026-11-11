@@ -3,10 +3,14 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from keyboards._helpers import build_menu
 from roles import ROLES
 
-def get_profile_user(user:dict) -> ReplyKeyboardMarkup:
+def get_profile_user(user:dict, section:dict|None = None) -> ReplyKeyboardMarkup:
     buttons = {
-        "commons_buttons":["⬅️ Назад"]
+        "common_buttons":[
+            "⬅️ Назад",
+            "Создать компанию" if section is None else f"Параметры компании"
+            ]
     }
+    
     return build_menu(user, buttons)
 
 def get_employer_user_card_kb(user_id: int) -> InlineKeyboardMarkup:

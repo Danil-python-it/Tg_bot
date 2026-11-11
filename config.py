@@ -26,6 +26,9 @@ VIEW_WORKERS = "view_workers"
 MANAGE_USERS = "manage_users"
 VIEW_USERS   = "view_users"
 
+VIEW_SECTION = "view_section"
+EDIT_SECTION = "edit_section"
+
 
 # Валидация — падаем сразу, а не в момент первого запроса
 if not BOT_TOKEN:

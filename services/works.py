@@ -2,11 +2,13 @@ from datetime import datetime
 from aiogram import html
 from DB.price_list import get_price_position
 from DB.works import get_all_works
+
 from services.payouts import get_user_calculation
 
 
 async def format_works_list(positions: list[dict], user:dict, options:dict = {"isSalary":True}) -> str:
     user_name = user["full_name"]
+    section_id = user["section_id"]
     
     if not positions:
         return f"Лист работ у {user_name} пуст."
@@ -15,7 +17,7 @@ async def format_works_list(positions: list[dict], user:dict, options:dict = {"i
     last_date = ""
     index = 1
     for i, p in enumerate(positions, 1):
-        title = (await get_price_position(p["price_list_item_id"]))["title"]
+        title = (await get_price_position(section_id, p["price_list_item_id"]))["title"]
         try:
             d = datetime.strptime(p["work_date"], "%Y-%m-%d").strftime("%Y.%m.%d")
         except (ValueError, TypeError):
@@ -32,7 +34,7 @@ async def format_works_list(positions: list[dict], user:dict, options:dict = {"i
         )
         index += 1
 
-    salary = await get_user_calculation(user["id"])
+    salary = await get_user_calculation(section_id, user["id"])
 
     text = (f"{"\n".join(lines)}\n\n──────────\nЗаработал - <b>{salary}p</b>") if options["isSalary"]  else "\n".join(lines)
 
@@ -47,9 +49,9 @@ async def format_works_dict(users: list[dict]) -> str:
 
     for i, user in enumerate(users, 1):
 
-        positions = await get_all_works(user["id"])
+        positions = await get_all_works(user["section_id"], user["id"])
         user_calc = await format_works_list(positions, user, options={"isSalary":False})
-        user_salary = await get_user_calculation(user["id"])
+        user_salary = await get_user_calculation(user["section_id"], user["id"])
 
         if user_salary is None:
             salares_block.append(

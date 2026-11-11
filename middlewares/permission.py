@@ -21,6 +21,16 @@ class PermissionMiddleware(BaseMiddleware):
             return await handler(event, data)
         
         user = data.get("user")
+        if not user:
+            if hasattr(event, "answer"):
+                await event.answer("⛔ Не авторизован.")
+            return
+        
+        if  user.get("section_id") is None:
+            if hasattr(event, "answer"):
+                await event.answer("⛔ Вы не привязаны к секции.")
+            return
+
         if not user or not has_permission(user["role"], required):
             if hasattr(event, "answer"):
                 await event.answer("⛔ Недостаточно прав.")

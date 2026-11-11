@@ -13,7 +13,7 @@ buttons = {
         "view_workers":     ["👥 лист сотрудников"],
         "manage_users":     ["👥 Пользователи"],
     },
-    "developer_buttons": ["👥 Пользователи"],
+    "developer_buttons": ["👥 Пользователи","Компании"],
 }
 
 def get_main_menu(user: dict) -> ReplyKeyboardMarkup:

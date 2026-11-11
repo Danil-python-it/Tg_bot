@@ -23,21 +23,32 @@ async def init_db():
         
         # Простейшая таблица для примера (потом заменишь на свою схему)
         await db.execute("""
+            CREATE TABLE IF NOT EXISTS sections (
+                id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+                name                TEXT NOT NULL,
+                employer_id         INTEGER REFERENCES users(id) ON DELETE SET NULL,
+                created_at          TEXT NOT NULL DEFAULT (datetime('now'))
+            )
+        """)
+        
+        await db.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
                 telegram_id INTEGER UNIQUE NOT NULL,
                 full_name   TEXT   DEFAULT 'unknown',
                 role        TEXT   DEFAULT 'worker',
+                section_id     INTEGER REFERENCES sections(id),
                 created_at  TEXT DEFAULT (datetime('now'))
             )
         """)
 
         await db.execute("""
-            CREATE TABLE IF NOT EXISTS price_list (
-                id         INTEGER PRIMARY KEY AUTOINCREMENT,
-                title      TEXT NOT NULL UNIQUE,
-                price      REAL NOT NULL CHECK (price >= 0),
-                created_at TEXT NOT NULL DEFAULT (datetime('now'))
+            CREATE TABLE IF NOT EXISTS price_list(
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                name            TEXT NOT NULL,
+                price           REAL NOT NULL CHECK (price >= 0),
+                section_id      INTEGER REFERENCES sections(id),
+                created_at      TEXT NOT NULL DEFAULT (datetime('now'))
             )
         """)
 
@@ -48,21 +59,10 @@ async def init_db():
                 rate_snapshot       REAL, 
                 count               INTEGER,
                 assignee_id         INTEGER REFERENCES users(id),
+                section_id          INTEGER REFERENCES sections(id),
                 work_date           TEXT NOT NULL,  
                 created_at          TEXT NOT NULL DEFAULT (datetime('now'))
             )
         """)
-        async with db.execute("PRAGMA table_info(works)") as cur:
-            cols = [r[1] for r in await cur.fetchall()]
-        if "rate_snapshot" not in cols:
-            await db.execute("ALTER TABLE works ADD COLUMN rate_snapshot REAL")
-            await db.execute("""UPDATE works SET rate_snapshot = (
-                SELECT price FROM price_list WHERE id = works.price_list_item_id
-            ) WHERE rate_snapshot IS NULL""")
-
-        async with db.execute("PRAGMA table_info(users)") as cur:
-            user_cols = [r[1] for r in await cur.fetchall()]
-        if "full_Name" in user_cols and "full_name" not in user_cols:
-            await db.execute("ALTER TABLE users RENAME COLUMN full_Name TO full_name")
-            
+        
         await db.commit()

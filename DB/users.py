@@ -18,7 +18,6 @@ async def get_user_to_telegram_id(telegram_id: int) -> str | None:
         row = await cursor.fetchone()
         return dict(row) if row else None
 
-
 async def add_user(telegram_id: int, full_name: str, role: str = "worker") -> int:
     db = await get_db()
     cur = await db.execute(
@@ -35,14 +34,24 @@ async def set_role(user_id: int, role: str) -> None:
     )
     await db.commit()
 
-async def get_all_users() -> list[dict]:
+async def set_section(user_id: int, section_id: int) -> None:
     db = await get_db()
-    cur = await db.execute("SELECT * FROM users")
+    await db.execute(
+        "UPDATE users SET section_id = ? WHERE id = ?", (section_id, user_id)
+    )
+    await db.commit()
+
+async def get_all_users(section_id:int = None) -> list[dict]:
+    db = await get_db()
+    if section_id is None: 
+        cur = await db.execute("SELECT * FROM users")
+    else: 
+        cur = await db.execute("SELECT * FROM users WHERE section_id = ?",(section_id,))
     row = await cur.fetchall()  
     return [dict(r) for r in row]
 
-async def get_all_users_with_role(role: str) -> list[dict]:
+async def get_all_users_with_role(section_id: int, role: str) -> list[dict]:
     db = await get_db()
-    cur = await db.execute("SELECT * FROM users WHERE role=?",(role,))
+    cur = await db.execute("SELECT * FROM users WHERE section_id = ? AND role = ?",(section_id, role))
     row = await cur.fetchall()  
     return [dict(r) for r in row]

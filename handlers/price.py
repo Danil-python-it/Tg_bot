@@ -68,7 +68,7 @@ async def add_price(message: Message, state: FSMContext, user:dict):
 
     data = await state.get_data()
     try:
-        await add_price_position(data["title"], price)
+        await add_price_position(user["section_id"], data["title"], price)
     except Exception:
         # Скорее всего, UNIQUE-конфликт по title
         await message.answer(
@@ -90,7 +90,7 @@ async def add_price(message: Message, state: FSMContext, user:dict):
 @router.message(F.text == "📋 Показать прайс")
 @flags.permission("view_price")
 async def show_price(message: Message, user:dict):
-    positions = await get_price_list()
+    positions = await get_price_list(user["section_id"])
     if not positions:
         await message.answer("Прайс пуст.", reply_markup=get_price_menu(user))
         return
@@ -106,7 +106,7 @@ async def show_price(message: Message, user:dict):
 @router.message(F.text == "✏️ Изменить цену")
 @flags.permission("edit_price")
 async def start_edit(message: Message, state: FSMContext, user:dict):
-    positions = await get_price_list()
+    positions = await get_price_list(user["section_id"])
     if not positions:
         await message.answer("Прайс пуст — нечего менять.", reply_markup=get_price_menu(user))
         return
@@ -120,9 +120,9 @@ async def start_edit(message: Message, state: FSMContext, user:dict):
 
 @router.callback_query(EditPrice.waiting_choice, F.data.startswith("edit:"))
 @flags.permission("edit_price")
-async def edit_choose(call: CallbackQuery, state: FSMContext):
+async def edit_choose(call: CallbackQuery, state: FSMContext, section: dict):
     position_id = int(call.data.split(":")[1])
-    position = await get_price_position(position_id)
+    position = await get_price_position(section["id"], position_id)
     if position is None:
         await call.answer("Позиция не найдена", show_alert=True)
         await state.clear()
@@ -151,7 +151,7 @@ async def edit_new_price(message: Message, state: FSMContext, user:dict):
         return
 
     data = await state.get_data()
-    await update_price(data["position_id"], new_price)
+    await update_price(user["section_id"], data["position_id"], new_price)
     await state.clear()
     await message.answer(
         f"Обновлено: «{data['title']}» — {new_price:.0f} ₽",

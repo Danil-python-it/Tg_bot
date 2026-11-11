@@ -30,7 +30,7 @@ async def cancel_any(message: Message, state: FSMContext, user: dict):
 @router.message(F.text == "➕ Добавить задачу")
 @flags.permission("create_work")
 async def add_user_work(message: Message, state: FSMContext, user: dict):
-    positions = await get_price_list()
+    positions = await get_price_list(user["section_id"])
     if not positions:
         await message.answer("Прайс пуст — обратитесь к работодателю.", reply_markup=get_works_menu(user))
         return
@@ -44,10 +44,10 @@ async def add_user_work(message: Message, state: FSMContext, user: dict):
 
 @router.callback_query(AddWork.waiting_position, F.data.startswith("GET:"))
 @flags.permission("create_work")
-async def work_choose_position(call: CallbackQuery, state: FSMContext):
+async def work_choose_position(call: CallbackQuery, state: FSMContext, section: dict):
     position_id = int(call.data.split(":")[1])
 
-    position = await get_price_position(position_id)
+    position = await get_price_position(section["id"], position_id)
     if position is None:
         await call.answer("Позиция не найдена", show_alert=True)
         await state.clear()
@@ -99,7 +99,7 @@ async def work_date(message: Message, state: FSMContext, user:dict):
         return 
 
     data = await state.get_data()
-    await add_work(data["position_id"], data["price"], data["count"], data["user_id"], message.text.replace(".","-").strip())
+    await add_work(user["section_id"], data["position_id"], data["price"], data["count"], data["user_id"], message.text.replace(".","-").strip())
 
     await state.clear()
     await message.answer(

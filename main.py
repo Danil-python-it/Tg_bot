@@ -8,7 +8,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from DB.database import init_db
-from handlers import common, price, payouts, works, users
+from handlers import common, price, payouts, section, works, users
 
 from middlewares.user import UserMiddleware
 from middlewares.role import RoleMiddleware
@@ -25,13 +25,12 @@ dp.include_router(price.router)
 dp.include_router(works.router)
 dp.include_router(payouts.router)
 dp.include_router(users.router)
-
+dp.include_router(section.router)
 
 dp.message.middleware(UserMiddleware())
-dp.message.middleware(RoleMiddleware())
+dp.message.middleware(PermissionMiddleware())
 
 dp.callback_query.middleware(UserMiddleware())
-dp.callback_query.middleware(RoleMiddleware())
 dp.callback_query.middleware(PermissionMiddleware())
 
 

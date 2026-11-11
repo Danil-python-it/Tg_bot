@@ -14,7 +14,7 @@ ROLES = {
         "label": "Работодатель", 
         "emoji": "💼", 
         "permissions": {
-            VIEW_WORKS, EDIT_PRICE, VIEW_PRICE, CREATE_PRICE, VIEW_PAYOUTS, VIEW_WORKERS
+            VIEW_WORKS, EDIT_PRICE, VIEW_PRICE, CREATE_PRICE, VIEW_PAYOUTS, VIEW_WORKERS, EDIT_SECTION
         }
     },
     "accountant": 
@@ -25,7 +25,7 @@ ROLES = {
             VIEW_WORKS, VIEW_PAYOUTS, CREATE_PRICE, EDIT_PRICE
         }
     },
-    "unknowт":      
+    "unknown":      
         {
             "label": "Неизвестный",        
             "emoji": "👑", 

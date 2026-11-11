@@ -3,10 +3,11 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from keyboards._helpers import build_menu
 
 buttons = {
-    "permission_button":{
+    "permission_buttons":{
         "create_price":      ["➕ Добавить позицию","📋 Показать прайс"],
         "edit_price":        ["✏️ Изменить цену"],
-    }
+    },
+    "common_buttons":["⬅️ Назад"]
 }
 
 def get_price_list_kb(positions: list[dict], action: str = "edit") -> InlineKeyboardMarkup:

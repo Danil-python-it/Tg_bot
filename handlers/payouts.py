@@ -15,7 +15,7 @@ router = Router()
 @router.message(F.text == "💰 Общий расчёт")
 @flags.permission("view_payouts")
 async def get_all_calculations(message: Message, user:dict):
-    workers = await get_all_users_with_role("worker")
+    workers = await get_all_users_with_role(user["section_id"], "worker")
     if not workers:
         await message.answer("Людей здесь нет", reply_markup=get_main_menu(user))
         return
@@ -29,7 +29,7 @@ async def get_all_calculations(message: Message, user:dict):
 @router.message(F.text == "💰 Мои начисления")
 @flags.permission("view_works")
 async def show_works(message: Message, user: dict):
-    positions = await get_all_works(user["id"])
+    positions = await get_all_works(user["section_id"], user["id"])
     text = await format_works_list(positions,user)
 
     await message.answer(
@@ -45,11 +45,10 @@ async def show_works_to_user(call: CallbackQuery):
     if user is None:
         await call.answer("Не найден", show_alert=True)
         return
-    positions = await get_all_works(user["id"])
+    positions = await get_all_works(user["section_id"], user["id"])
     text = await format_works_list(positions,user)
     await call.message.answer(
         text
     )
     await call.answer()
-
 

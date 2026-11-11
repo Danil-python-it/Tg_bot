@@ -2,6 +2,7 @@ from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, Message
 from DB.users import get_user_to_telegram_id
+from DB.sections import get_section
 
 class UserMiddleware(BaseMiddleware):
     async def __call__(
@@ -19,8 +20,10 @@ class UserMiddleware(BaseMiddleware):
 
         if user_telegram_id:
             user = await get_user_to_telegram_id(user_telegram_id)
-            if user:
+            if user:   
+                section = await get_section(user["section_id"])            
                 data["user"] = user  # 👈 Кладём в контекст
+                data["section"] = section if section is not None else None
 
         # Передаём управление дальше (хендлеру)
         return await handler(event, data)

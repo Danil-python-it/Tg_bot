@@ -14,7 +14,7 @@ router = Router()
 @router.message(F.text == "👥 лист сотрудников")
 @flags.permission("view_users")
 async def list_workers(message: Message, user: dict):
-    workers = await get_all_users_with_role("worker")
+    workers = await get_all_users_with_role(user["section_id"], "worker")
     if not workers:
         await message.answer("Работников нет.", reply_markup=get_main_menu(user))
         return
@@ -100,8 +100,8 @@ async def back_admin_list(call: CallbackQuery):
 
 @router.callback_query(F.data == "back:emp:list")
 @flags.permission("view_users")
-async def back_emp_list(call: CallbackQuery):
-    workers = await get_all_users_with_role("worker")
+async def back_emp_list(call: CallbackQuery, section: dict):
+    workers = await get_all_users_with_role(section["id"], "worker")
     await call.message.edit_text(
         format_users_list(workers, "Работники"),
         reply_markup=get_users_list_kb(workers, "emp"),
